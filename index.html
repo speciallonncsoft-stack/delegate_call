@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#F5F2EA" />
+  <title>CALL X — 전화해야 할 일, AI에게 맡겨보세요</title>
+  <meta name="description" content="병원 예약, 고객센터 문의처럼 직접 전화해야 하는 일을 AI가 대신 전화하고 필요한 결정만 다시 묻는 CALL X 대신걸기 컨셉입니다." />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <style>
+    :root{
+      --bg:#F5F2EA;
+      --paper:#FFFDF7;
+      --ink:#171717;
+      --muted:#69665F;
+      --line:rgba(23,23,23,.18);
+      --blue:#4E63FF;
+      --blue-dark:#3045DF;
+      --lime:#D7FF68;
+      --peach:#FFAE79;
+      --pink:#FF8EA4;
+      --mint:#B8F2D0;
+      --night:#142726;
+      --shadow:0 22px 70px rgba(25,24,20,.09);
+      --max:1180px;
+      --radius:28px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      line-height:1.5;
+      letter-spacing:-.025em;
+      overflow-x:hidden;
+    }
+    button,input{font:inherit}
+    button{color:inherit}
+    a{color:inherit;text-decoration:none}
+    .wrap{width:min(var(--max),calc(100% - 40px));margin:0 auto}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    /* NAV */
+    .nav{position:fixed;top:0;left:0;width:100%;z-index:70;padding:14px 0;transition:.25s ease;pointer-events:none}
+    .nav-shell{pointer-events:auto;display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:56px;padding:8px 10px 8px 13px;border:1px solid transparent;border-radius:999px;transition:.25s ease}
+    .nav.scrolled .nav-shell{background:rgba(245,242,234,.86);backdrop-filter:blur(18px);border-color:var(--line);box-shadow:0 10px 26px rgba(20,20,18,.06)}
+    .brand{display:flex;align-items:center;gap:10px;font-size:18px;font-weight:850;letter-spacing:-.055em}
+    .xmark{width:31px;height:31px;border-radius:10px;display:grid;place-items:center;background:var(--ink);color:#fff;font-weight:900}
+    .brand small{font-size:10px;font-weight:750;color:var(--muted);letter-spacing:.045em;text-transform:uppercase}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .nav-note{font-size:11px;color:var(--muted)}
+    .pill{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:999px;padding:10px 15px;font-weight:800;font-size:12px;cursor:pointer;transition:.2s ease}
+    .pill:hover{transform:translateY(-2px);box-shadow:-3px 3px var(--lime)}
+
+    /* TYPE */
+    .eyebrow{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:850;letter-spacing:.055em;text-transform:uppercase;margin-bottom:17px}
+    .eyebrow::before{content:"";width:9px;height:9px;background:currentColor;border-radius:2px}
+    h1,h2,h3,p{margin-top:0}
+    h1{font-size:clamp(48px,6.3vw,88px);line-height:.96;letter-spacing:-.065em;font-weight:690;margin-bottom:24px;max-width:720px}
+    h2{font-size:clamp(38px,4.7vw,64px);line-height:1;letter-spacing:-.055em;font-weight:680;margin-bottom:18px}
+    h3{font-size:clamp(24px,3vw,35px);line-height:1.12;letter-spacing:-.045em;font-weight:720;margin-bottom:12px}
+    .lead{font-size:clamp(16px,1.55vw,20px);line-height:1.66;color:var(--muted);max-width:700px}
+    .marker{position:relative;display:inline-block;z-index:0;white-space:nowrap}
+    .marker::after{content:"";position:absolute;left:-2%;bottom:.02em;width:104%;height:.2em;background:var(--lime);z-index:-1;border-radius:100%;transform:rotate(-1.2deg)}
+
+    /* HERO */
+    .hero{padding:96px 0 30px}
+    .hero-shell{border:1px solid var(--ink);border-radius:32px;background:var(--paper);overflow:hidden;box-shadow:var(--shadow);display:grid;grid-template-columns:1.02fr .98fr;min-height:670px}
+    .hero-copy{padding:58px 48px 44px;display:flex;flex-direction:column;justify-content:space-between;gap:36px}
+    .hero-copy .eyebrow{color:var(--blue)}
+    .hero-copy .lead{max-width:610px;margin-bottom:26px}
+    .hero-cta-row{display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+    .primary{border:1px solid var(--ink);background:var(--blue);color:#fff;border-radius:999px;padding:15px 20px;font-weight:850;cursor:pointer;transition:.2s ease;box-shadow:0 0 0 rgba(0,0,0,0)}
+    .primary:hover{transform:translate(3px,-3px);box-shadow:-4px 4px var(--ink)}
+    .hero-note{font-size:12px;color:var(--muted)}
+    .hero-proof{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line);padding-top:18px;gap:16px}
+    .hero-proof div{min-width:0}
+    .hero-proof small{display:block;color:var(--muted);font-size:10px;margin-bottom:3px}
+    .hero-proof b{font-size:12px;line-height:1.35;display:block}
+
+    .hero-art{position:relative;background:var(--night);border-left:1px solid var(--ink);padding:38px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .hero-art::before{content:"";position:absolute;width:330px;height:330px;border-radius:50%;background:var(--blue);filter:blur(3px);opacity:.55;top:-100px;right:-100px}
+    .hero-art::after{content:"";position:absolute;width:250px;height:250px;border-radius:50%;background:var(--lime);opacity:.13;left:-110px;bottom:-90px}
+    .agent-stack{width:min(100%,470px);position:relative;z-index:2;display:grid;gap:13px}
+    .concept-label{justify-self:end;display:inline-flex;align-items:center;gap:7px;color:#D7E0DA;font-size:10px;font-weight:800;letter-spacing:.045em;text-transform:uppercase}
+    .concept-label i{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 5px rgba(215,255,104,.12)}
+    .request-card{background:#F9F7EF;border:1px solid #0C0C0C;border-radius:22px;padding:19px 20px;box-shadow:-5px 6px #0C0C0C}
+    .request-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:13px;color:#6C6962;font-size:10px;font-weight:750}
+    .request-card strong{display:block;font-size:19px;line-height:1.38;letter-spacing:-.035em}
+    .request-chip{display:inline-flex;margin-top:13px;border:1px solid var(--ink);border-radius:999px;padding:5px 9px;font-size:10px;font-weight:800;background:var(--lime)}
+    .call-card{background:#FFF;border:1px solid var(--ink);border-radius:24px;padding:18px;position:relative;overflow:hidden}
+    .call-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+    .callee{display:flex;align-items:center;gap:11px}
+    .avatar{width:38px;height:38px;border-radius:12px;background:var(--peach);display:grid;place-items:center;font-size:16px;font-weight:900;border:1px solid var(--ink)}
+    .callee b{display:block;font-size:13px}
+    .callee span{display:block;font-size:10px;color:var(--muted);margin-top:1px}
+    .live{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--blue-dark);font-weight:850}
+    .live::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--blue);animation:pulse 1.5s ease infinite}
+    @keyframes pulse{50%{box-shadow:0 0 0 6px rgba(78,99,255,.14)}}
+    .call-log{padding:14px 0 5px;display:grid;gap:10px}
+    .log{display:grid;grid-template-columns:18px 1fr;gap:9px;align-items:start;font-size:11px;line-height:1.45;color:#4D4B46}
+    .log i{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;background:#ECEBF4;color:var(--blue);font-style:normal;font-size:9px;font-weight:900}
+    .log.active{color:var(--ink);font-weight:760}
+    .log.active i{background:var(--lime);color:var(--ink);border:1px solid var(--ink)}
+    .decision-card{background:var(--lime);border:1px solid var(--ink);border-radius:20px;padding:17px 18px;box-shadow:-4px 5px var(--ink);transform:rotate(-1deg)}
+    .decision-card small{display:block;font-size:10px;font-weight:850;letter-spacing:.04em;margin-bottom:7px}
+    .decision-card b{display:block;font-size:18px;line-height:1.35;margin-bottom:11px}
+    .decision-actions{display:flex;gap:7px;flex-wrap:wrap}
+    .decision-actions span{border:1px solid var(--ink);border-radius:999px;padding:6px 10px;background:#fff;font-size:10px;font-weight:800}
+
+    .ticker{margin:18px 0 36px;border-top:1px solid var(--ink);border-bottom:1px solid var(--ink);overflow:hidden;background:var(--ink);color:#fff;transform:rotate(-.35deg)}
+    .ticker-track{display:flex;width:max-content;animation:ticker 34s linear infinite;padding:10px 0}
+    .ticker span{white-space:nowrap;padding:0 22px;font-size:12px;font-weight:650}
+    .ticker b{color:var(--lime)}
+    @keyframes ticker{to{transform:translateX(-50%)}}
+
+    /* SURVEY */
+    .survey{padding:36px 0 82px;scroll-margin-top:80px}
+    .survey-intro{display:grid;grid-template-columns:1.05fr .75fr;gap:34px;align-items:end;margin-bottom:22px}
+    .survey-intro .eyebrow{color:var(--blue)}
+    .survey-intro h2{margin-bottom:12px}
+    .survey-intro p{margin-bottom:0}
+    .survey-meta{justify-self:end;width:100%;max-width:360px;border-top:1px solid var(--ink);padding-top:13px;color:var(--muted);font-size:12px}
+    .survey-meta b{color:var(--ink)}
+    .survey-frame{border:1px solid var(--ink);border-radius:28px;background:var(--paper);overflow:hidden;box-shadow:var(--shadow)}
+    .survey-headbar{display:grid;grid-template-columns:160px 1fr;border-bottom:1px solid var(--ink)}
+    .survey-index{padding:21px 23px;background:var(--blue);color:#fff;border-right:1px solid var(--ink);display:flex;flex-direction:column;justify-content:space-between;min-height:166px;transition:.25s ease}
+    .survey-index[data-tone="lime"]{background:var(--lime);color:var(--ink)}
+    .survey-index[data-tone="peach"]{background:var(--peach);color:var(--ink)}
+    .survey-index[data-tone="pink"]{background:var(--pink);color:var(--ink)}
+    .survey-index[data-tone="dark"]{background:var(--ink);color:#fff}
+    .survey-index small{font-size:10px;font-weight:850;letter-spacing:.06em;text-transform:uppercase}
+    .survey-index strong{font-size:58px;line-height:.85;letter-spacing:-.07em;font-weight:650}
+    .survey-copy{padding:24px 28px 21px}
+    .progress-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-size:10px;font-weight:850;color:var(--blue)}
+    .progress-track{width:90px;height:5px;background:#E4E2DC;border:1px solid var(--ink);overflow:hidden}
+    .progress-track i{display:block;height:100%;background:var(--blue);width:0;transition:.3s ease}
+    .survey-copy h3{font-size:clamp(24px,3vw,34px);margin-bottom:8px;max-width:760px}
+    .survey-copy p{font-size:13px;color:var(--muted);margin-bottom:0}
+    .options{display:grid;grid-template-columns:repeat(2,1fr)}
+    .option{min-height:104px;padding:19px 22px;text-align:left;background:transparent;border:0;border-right:1px solid var(--ink);border-bottom:1px solid var(--ink);cursor:pointer;position:relative;transition:.16s ease}
+    .option:nth-child(even){border-right:0}
+    .option:last-child:nth-child(odd){grid-column:1/-1;border-right:0}
+    .option:hover{background:#F0EEE7}
+    .option[aria-pressed="true"]{background:var(--lime)}
+    .option::after{content:"";position:absolute;top:17px;right:18px;width:22px;height:22px;border:1.5px solid var(--ink);border-radius:50%;background:#fff;display:grid;place-items:center;font-size:12px;font-weight:900}
+    .option[aria-pressed="true"]::after{content:"✓";background:var(--ink);color:#fff}
+    .option strong{display:block;padding-right:30px;font-size:16px;line-height:1.35;margin-bottom:4px}
+    .option span{display:block;color:#6A675F;font-size:11px;line-height:1.45;max-width:410px}
+    .survey-foot{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 15px;border-top:0;color:var(--muted);font-size:10px}
+    .back{border:0;background:transparent;color:var(--ink);font-weight:800;cursor:pointer;padding:6px}
+    .done{padding:34px 28px 38px;text-align:center}
+    .done-badge{width:54px;height:54px;border:1px solid var(--ink);border-radius:18px;background:var(--lime);display:grid;place-items:center;margin:0 auto 17px;font-size:24px;font-weight:900;box-shadow:-4px 4px var(--ink)}
+    .done h3{margin-bottom:9px}
+    .done p{color:var(--muted);font-size:13px;margin-bottom:16px}
+    .secondary{border:1px solid var(--ink);background:#fff;border-radius:999px;padding:11px 15px;font-size:12px;font-weight:800;cursor:pointer}
+
+    /* VALUE */
+    .value{background:var(--night);color:#fff;padding:92px 0 98px}
+    .value .eyebrow{color:var(--lime)}
+    .value .lead{color:#C6D1CC}
+    .value-head{display:grid;grid-template-columns:1fr .75fr;gap:35px;align-items:end}
+    .value-head .lead{justify-self:end;max-width:500px;margin-bottom:0}
+    .scenario-switch{display:flex;gap:8px;margin:38px 0 24px;flex-wrap:wrap}
+    .scenario-tab{border:1px solid rgba(255,255,255,.35);background:transparent;color:#D8E0DC;border-radius:999px;padding:10px 14px;font-size:11px;font-weight:800;cursor:pointer;transition:.18s ease}
+    .scenario-tab[aria-selected="true"]{background:var(--lime);color:var(--ink);border-color:var(--ink)}
+    .scenario-layout{display:grid;grid-template-columns:.72fr 1.28fr;gap:34px;align-items:start}
+    .steps{border-top:1px solid rgba(255,255,255,.25)}
+    .step{padding:19px 0;border-bottom:1px solid rgba(255,255,255,.18);display:grid;grid-template-columns:30px 1fr;gap:12px;opacity:.42;transition:.2s ease;cursor:pointer}
+    .step.active{opacity:1}
+    .step-no{color:var(--lime);font-size:10px;font-weight:850;padding-top:3px}
+    .step b{display:block;font-size:18px;margin-bottom:4px}
+    .step p{font-size:12px;color:#BFCBC6;margin-bottom:0;line-height:1.55}
+    .value-mock{border:1px solid rgba(255,255,255,.36);border-radius:28px;background:#F8F5ED;color:var(--ink);padding:24px;min-height:440px;position:relative;overflow:hidden}
+    .value-mock::before{content:"";position:absolute;width:180px;height:180px;border-radius:50%;background:var(--blue);opacity:.11;right:-60px;top:-60px}
+    .mock-head{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:16px;border-bottom:1px solid var(--line);position:relative}
+    .mock-head b{font-size:15px}
+    .mock-head span{font-size:10px;color:var(--muted)}
+    .mock-body{display:grid;gap:12px;padding-top:18px;position:relative}
+    .bubble{max-width:86%;border:1px solid var(--ink);border-radius:18px;padding:14px 15px;font-size:13px;line-height:1.5;background:#fff}
+    .bubble.user{justify-self:end;background:var(--blue);color:#fff;border-radius:18px 18px 4px 18px}
+    .bubble.agent{justify-self:start;border-radius:18px 18px 18px 4px}
+    .call-status{margin-top:4px;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--ink);border-radius:18px;overflow:hidden;background:#fff}
+    .call-status div{padding:12px;border-right:1px solid var(--ink)}
+    .call-status div:last-child{border-right:0}
+    .call-status small{display:block;font-size:9px;color:var(--muted);margin-bottom:3px}
+    .call-status b{font-size:11px;display:block;line-height:1.35}
+    .result-panel{margin-top:4px;background:var(--lime);border:1px solid var(--ink);border-radius:19px;padding:15px 16px;box-shadow:-4px 4px var(--ink)}
+    .result-panel small{display:block;font-size:9px;font-weight:850;margin-bottom:5px}
+    .result-panel b{display:block;font-size:17px;line-height:1.35;margin-bottom:5px}
+    .result-panel span{font-size:10px;color:#3E4732}
+    .value-note{margin-top:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    .value-note div{border:1px solid rgba(255,255,255,.22);border-radius:18px;padding:16px}
+    .value-note b{display:block;font-size:13px;margin-bottom:5px}
+    .value-note p{font-size:11px;color:#BDC8C3;margin-bottom:0}
+
+    /* VOICES */
+    .voices{padding:88px 0 52px}
+    .voices-head{display:grid;grid-template-columns:1fr .75fr;gap:30px;align-items:end;margin-bottom:28px}
+    .voices-head .eyebrow{color:var(--blue)}
+    .voices-head p{justify-self:end;color:var(--muted);font-size:12px;max-width:430px;margin-bottom:0}
+    .voice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+    .voice{border:1px solid var(--ink);border-radius:22px;background:var(--paper);padding:20px;min-height:235px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 12px 32px rgba(0,0,0,.04)}
+    .voice:nth-child(2){background:#EEF0FF}
+    .voice:nth-child(3){background:#F4FFD9}
+    .voice-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .persona{display:flex;align-items:center;gap:9px}
+    .persona i{width:34px;height:34px;border-radius:12px;background:var(--peach);border:1px solid var(--ink);display:grid;place-items:center;font-style:normal;font-weight:900;font-size:12px}
+    .persona b{display:block;font-size:12px}
+    .persona small{display:block;color:var(--muted);font-size:9px;margin-top:1px}
+    .sample{font-size:9px;font-weight:850;border:1px solid var(--ink);border-radius:999px;padding:4px 7px;background:#fff}
+    blockquote{margin:22px 0 0;font-size:17px;line-height:1.55;letter-spacing:-.035em;font-weight:620}
+    blockquote mark{background:transparent;box-shadow:inset 0 -.42em var(--lime);padding:0 .05em}
+    .pain-result{border-top:1px solid var(--line);padding-top:13px;margin-top:18px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;font-size:10px}
+    .pain-result small{display:block;color:var(--muted);margin-bottom:3px}
+    .pain-result b{display:block;font-size:11px;line-height:1.35}
+    .arrow{font-size:16px;color:var(--blue);font-weight:900}
+
+    /* FAQ */
+    .faq{padding:36px 0 110px;display:grid;grid-template-columns:.72fr 1.28fr;gap:54px;align-items:start}
+    .faq .eyebrow{color:var(--blue)}
+    .faq h2{font-size:clamp(34px,4vw,52px)}
+    details{border-top:1px solid var(--ink)}
+    details:last-child{border-bottom:1px solid var(--ink)}
+    summary{list-style:none;cursor:pointer;padding:20px 36px 20px 0;font-size:15px;font-weight:800;position:relative}
+    summary::-webkit-details-marker{display:none}
+    summary::after{content:"+";position:absolute;right:4px;top:17px;font-size:22px;font-weight:500}
+    details[open] summary::after{content:"−"}
+    details p{padding:0 42px 20px 0;color:var(--muted);font-size:13px;line-height:1.65;margin-bottom:0}
+
+    /* BOTTOM */
+    .bottom{margin-bottom:32px;border:1px solid var(--ink);border-radius:28px;background:var(--blue);color:#fff;padding:30px 32px;display:flex;align-items:center;justify-content:space-between;gap:26px;box-shadow:-6px 7px var(--ink)}
+    .bottom h3{margin:0;max-width:670px;font-size:clamp(26px,3vw,38px)}
+    .bottom .primary{background:var(--lime);color:var(--ink);white-space:nowrap}
+    footer{padding:16px 0 34px;color:#767168;font-size:10px;text-align:center;line-height:1.6}
+
+    /* sticky mobile */
+    .mobile-sticky{display:none}
+
+    @media(max-width:920px){
+      .hero-shell{grid-template-columns:1fr}
+      .hero-art{border-left:0;border-top:1px solid var(--ink);min-height:590px}
+      .survey-intro,.value-head,.voices-head,.faq{grid-template-columns:1fr}
+      .survey-meta,.value-head .lead,.voices-head p{justify-self:start;max-width:100%}
+      .scenario-layout{grid-template-columns:1fr}
+      .steps{display:grid;grid-template-columns:repeat(2,1fr);border-top:0;gap:8px}
+      .step{border:1px solid rgba(255,255,255,.2);border-radius:16px;padding:14px}
+      .value-note{grid-template-columns:1fr}
+      .voice-grid{grid-template-columns:1fr}
+      .faq{gap:24px}
+    }
+    @media(max-width:640px){
+      .wrap{width:min(100% - 24px,var(--max))}
+      .nav{padding:9px 0}.nav-shell{min-height:48px;padding:6px 7px 6px 9px}.brand{font-size:16px}.xmark{width:28px;height:28px}.brand small,.nav-note{display:none}.pill{padding:8px 11px;font-size:11px}
+      .hero{padding:72px 0 17px}
+      .hero-shell{border-radius:23px;min-height:0}
+      .hero-copy{padding:31px 22px 25px;gap:27px}
+      h1{font-size:clamp(42px,13vw,58px);margin-bottom:17px}
+      .hero-copy .lead{font-size:15px;line-height:1.58;margin-bottom:20px}
+      .hero-proof{grid-template-columns:1fr;gap:9px}
+      .hero-proof div{display:grid;grid-template-columns:82px 1fr;gap:8px;align-items:center}
+      .hero-proof small{margin:0}
+      .hero-art{min-height:500px;padding:23px 18px}
+      .request-card{padding:16px}.request-card strong{font-size:16px}.call-card{padding:15px}.decision-card{padding:15px}.decision-card b{font-size:16px}
+      .ticker{margin:13px 0 23px}
+      .survey{padding:26px 0 60px;scroll-margin-top:62px}
+      .survey-intro{gap:16px;margin-bottom:15px}.survey-intro h2{font-size:36px}.survey-intro .lead{font-size:14px}.survey-meta{font-size:11px}
+      .survey-frame{border-radius:20px}
+      .survey-headbar{grid-template-columns:78px 1fr}
+      .survey-index{min-height:154px;padding:17px 12px}.survey-index strong{font-size:43px}.survey-index small{font-size:8px;writing-mode:vertical-rl;transform:rotate(180deg)}
+      .survey-copy{padding:19px 16px 17px}.survey-copy h3{font-size:22px}.survey-copy p{font-size:11px}
+      .options{grid-template-columns:1fr}
+      .option{min-height:79px;border-right:0;padding:16px 18px}.option:last-child{border-bottom:0}.option strong{font-size:15px}.option span{font-size:10px}.option::after{top:15px;right:16px}
+      .survey-foot{padding:9px 10px}
+      .value{padding:68px 0 72px}.value h2{font-size:39px}.value-head .lead{font-size:14px}
+      .scenario-switch{margin-top:28px}.scenario-tab{font-size:10px;padding:9px 11px}
+      .steps{grid-template-columns:1fr}.step{grid-template-columns:26px 1fr}.step p{display:none}.step.active p{display:block;margin-top:5px}
+      .value-mock{padding:17px;min-height:390px}.bubble{font-size:11px}.call-status{grid-template-columns:1fr}.call-status div{border-right:0;border-bottom:1px solid var(--ink)}.call-status div:last-child{border-bottom:0}.result-panel b{font-size:15px}
+      .voices{padding:66px 0 38px}.voices h2{font-size:38px}.voice{min-height:215px}.voice blockquote{font-size:16px}
+      .faq{padding:30px 0 90px}.faq h2{font-size:36px}summary{font-size:14px}.bottom{padding:24px 20px;display:block}.bottom .primary{margin-top:18px;width:100%}
+      .mobile-sticky{display:flex;position:fixed;left:10px;right:10px;bottom:10px;z-index:65;background:rgba(23,23,23,.94);color:#fff;border:1px solid #000;border-radius:18px;padding:9px 9px 9px 13px;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 12px 36px rgba(0,0,0,.22);backdrop-filter:blur(15px);transition:.25s ease}
+      .mobile-sticky.hidden{transform:translateY(120%);opacity:0;pointer-events:none}
+      .mobile-sticky span{font-size:10px;line-height:1.3}.mobile-sticky b{display:block;font-size:11px;margin-bottom:2px}.mobile-sticky .pill{background:var(--lime);color:var(--ink);border-color:#000;white-space:nowrap}
+      body{padding-bottom:74px}
+    }
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="wrap nav-shell">
+      <a class="brand" href="#top" aria-label="CALL X 홈"><span class="xmark">X</span><span>CALL X</span><small>Outbound Assistant Concept</small></a>
+      <div class="nav-actions"><span class="nav-note">선택형 6문항 · 약 1분</span><button class="pill" data-go-survey data-location="nav">의견 남기기 ↘</button></div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="wrap hero-shell">
+        <div class="hero-copy">
+          <div>
+            <div class="eyebrow">CALL X · 대신걸기 컨셉</div>
+            <h1>전화해야 할 일,<br><span class="marker">AI에게 맡겨보세요.</span></h1>
+            <p class="lead">병원 예약, 고객센터 문의처럼 <b>직접 전화하고 기다리고 설명해야 하는 일</b>을 대신 처리합니다. 새로운 결정이 필요할 때만 다시 물어봅니다.</p>
+            <div class="hero-cta-row">
+              <button class="primary" data-go-survey data-location="hero">이런 기능, 필요할까요? ↘</button>
+              <span class="hero-note">이름·전화번호 수집 없음</span>
+            </div>
+          </div>
+          <div class="hero-proof" aria-label="컨셉 요약">
+            <div><small>01 · 부탁</small><b>전화할 일을 말하면</b></div>
+            <div><small>02 · 처리</small><b>AI가 대신 전화하고</b></div>
+            <div><small>03 · 확인</small><b>결정할 일만 돌려줌</b></div>
+          </div>
+        </div>
+
+        <div class="hero-art" aria-label="AI가 병원에 대신 전화해 예약 가능 시간을 확인하는 컨셉 목업">
+          <div class="agent-stack">
+            <div class="concept-label"><i></i>Concept mockup · 실제 화면 아님</div>
+            <div class="request-card">
+              <div class="request-meta"><span>나의 요청</span><span>오늘 11:42</span></div>
+              <strong>“이번 주 금요일 6시 이후<br>스케일링 가능한 시간 알아봐줘.”</strong>
+              <span class="request-chip">병원 예약 · 대신 전화</span>
+            </div>
+            <div class="call-card">
+              <div class="call-top">
+                <div class="callee"><span class="avatar">치</span><div><b>OO치과</b><span>AI가 대신 통화 중</span></div></div>
+                <span class="live">00:47 · 연결됨</span>
+              </div>
+              <div class="call-log">
+                <div class="log"><i>1</i><span>전화 연결 · 안내 음성 확인</span></div>
+                <div class="log"><i>2</i><span>예약 가능한 시간 문의</span></div>
+                <div class="log active"><i>3</i><span>금요일 18:30 가능 · 사용자 확인 필요</span></div>
+              </div>
+            </div>
+            <div class="decision-card">
+              <small>CALL X · 확인이 필요한 결정</small>
+              <b>금요일 오후 6:30에 예약할까요?</b>
+              <div class="decision-actions"><span>이 시간으로 예약</span><span>다른 시간 찾기</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="ticker" aria-hidden="true"><div class="ticker-track">
+      <span><b>예약·접수</b> 병원 · 미용실 · 방문 서비스</span><span><b>고객센터</b> 문의 · 변경 · 해지 · A/S</span><span><b>단순 확인</b> 비용 · 운영시간 · 진행상태</span><span><b>결정은 사용자에게</b> 필요한 순간만 확인</span>
+      <span><b>예약·접수</b> 병원 · 미용실 · 방문 서비스</span><span><b>고객센터</b> 문의 · 변경 · 해지 · A/S</span><span><b>단순 확인</b> 비용 · 운영시간 · 진행상태</span><span><b>결정은 사용자에게</b> 필요한 순간만 확인</span>
+    </div></div>
+
+    <section class="survey" id="survey" aria-labelledby="surveyTitle">
+      <div class="wrap">
+        <div class="survey-intro">
+          <div>
+            <div class="eyebrow">1 MINUTE SURVEY</div>
+            <h2 id="surveyTitle">당신이라면<br>어떤 전화를 맡기고 싶나요?</h2>
+            <p class="lead">실제로 전화를 해야 했던 경험을 떠올려주세요. 선택하면 바로 다음 질문으로 넘어갑니다.</p>
+          </div>
+          <div class="survey-meta"><b>조사 목적</b><br>직접 전화해야 하는 불편이 실제로 존재하는지, 어떤 업무와 고객에게 대신걸기가 필요한지 확인합니다.</div>
+        </div>
+
+        <div class="survey-frame" id="surveyFrame">
+          <div class="survey-headbar">
+            <div class="survey-index" id="surveyIndex" data-tone="blue"><small id="qKind">REAL EXPERIENCE</small><strong id="qNo">01</strong></div>
+            <div class="survey-copy">
+              <div class="progress-row"><span id="qStatus">Q1 / 6</span><span class="progress-track"><i id="qBar"></i></span></div>
+              <h3 id="qTitle" tabindex="-1"></h3>
+              <p id="qHelp"></p>
+            </div>
+          </div>
+          <div class="options" id="options" role="group" aria-labelledby="qTitle"></div>
+          <div class="survey-foot"><button class="back" id="back" type="button">← 이전 질문</button><span id="saveStatus" role="status" aria-live="polite">선택 즉시 응답이 기록됩니다.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="value" id="how">
+      <div class="wrap">
+        <div class="value-head">
+          <div><div class="eyebrow">HOW IT COULD WORK</div><h2>전화를 대신 걸고,<br>필요한 결정만 남깁니다.</h2></div>
+          <p class="lead">대신걸기의 가치는 “통화 자체”가 아니라 <b>연결을 기다리고, 같은 설명을 반복하고, 결과를 다시 정리하는 과정</b>을 줄이는 데 있습니다.</p>
+        </div>
+
+        <div class="scenario-switch" role="tablist" aria-label="대신걸기 시나리오">
+          <button class="scenario-tab" role="tab" aria-selected="true" data-scenario="reservation">예약·접수</button>
+          <button class="scenario-tab" role="tab" aria-selected="false" data-scenario="support">고객센터 처리</button>
+          <button class="scenario-tab" role="tab" aria-selected="false" data-scenario="info">단순 확인·문의</button>
+        </div>
+
+        <div class="scenario-layout">
+          <div class="steps" id="steps" aria-label="처리 단계"></div>
+          <div class="value-mock" id="valueMock" role="tabpanel"></div>
+        </div>
+
+        <div class="value-note">
+          <div><b>내가 먼저 범위를 정함</b><p>어떤 정보까지 말할지, 어디까지 처리할지 사용자가 정하는 방식입니다.</p></div>
+          <div><b>새로운 결정은 다시 확인</b><p>가격·시간·약속처럼 조건이 바뀌면 임의로 확정하지 않고 확인을 요청합니다.</p></div>
+          <div><b>결과만 한눈에 정리</b><p>통화 내용 전체보다 처리 결과, 남은 일, 다음 행동을 중심으로 보여줍니다.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="voices" aria-labelledby="voiceTitle">
+      <div class="wrap">
+        <div class="voices-head">
+          <div><div class="eyebrow">POSSIBLE USERS</div><h2 id="voiceTitle">이런 순간에<br>필요할 수 있습니다.</h2></div>
+          <p>아래 내용은 서비스 니즈를 설명하기 위해 구성한 <b>가상 사용자 시나리오</b>입니다. 실제 인터뷰나 이용 후기가 아닙니다.</p>
+        </div>
+        <div class="voice-grid">
+          <article class="voice">
+            <div class="voice-head"><div class="persona"><i>J</i><div><b>30대 직장인</b><small>병원 예약을 자주 미룸</small></div></div><span class="sample">가상 예시</span></div>
+            <blockquote>“병원 예약은 꼭 근무시간에 전화해야 해서 계속 미뤄요. <mark>가능한 시간만 알아봐줘도</mark> 훨씬 편할 것 같아요.”</blockquote>
+            <div class="pain-result"><div><small>지금은</small><b>쉬는 시간에 직접 전화</b></div><span class="arrow">→</span><div><small>바라는 도움</small><b>가능 시간 확인 · 예약</b></div></div>
+          </article>
+          <article class="voice">
+            <div class="voice-head"><div class="persona"><i>S</i><div><b>40대 이용자</b><small>통신·카드 고객센터 이용</small></div></div><span class="sample">가상 예시</span></div>
+            <blockquote>“상담원 연결까지 기다리는 시간이 제일 아까워요. <mark>대기하고 용건 설명하는 것까지</mark> 맡길 수 있으면 좋겠어요.”</blockquote>
+            <div class="pain-result"><div><small>지금은</small><b>ARS·대기 직접 처리</b></div><span class="arrow">→</span><div><small>바라는 도움</small><b>연결·문의 대신 진행</b></div></div>
+          </article>
+          <article class="voice">
+            <div class="voice-head"><div class="persona"><i>M</i><div><b>20대 이용자</b><small>전화 문의를 번거롭게 느낌</small></div></div><span class="sample">가상 예시</span></div>
+            <blockquote>“재고나 가격 하나 확인하려고 전화하는 게 애매해요. <mark>물어보고 답만 가져오면</mark> 좋겠어요.”</blockquote>
+            <div class="pain-result"><div><small>지금은</small><b>검색 후 결국 직접 전화</b></div><span class="arrow">→</span><div><small>바라는 도움</small><b>질문 전달 · 답 요약</b></div></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq wrap" aria-label="자주 묻는 질문">
+      <div><div class="eyebrow">GOOD TO KNOW</div><h2>대신걸기,<br>어디까지 가능한가요?</h2></div>
+      <div>
+        <details><summary>AI가 제 번호로 직접 전화를 거는 건가요?</summary><p>현재는 서비스 컨셉을 검증하는 단계입니다. 실제 발신번호 표시 방식, 상대방 안내 방식, 지원 가능한 통화 유형은 출시 여부와 함께 별도로 검토될 예정입니다.</p></details>
+        <details><summary>AI가 알아서 예약이나 변경을 확정하나요?</summary><p>컨셉상 사용자가 미리 허용한 범위와 조건 안에서만 처리하고, 새로운 시간·가격·조건이 제시되면 사용자에게 확인을 요청하는 방식을 가정합니다.</p></details>
+        <details><summary>고객센터 ARS나 상담원 대기도 대신할 수 있나요?</summary><p>이번 조사에서는 고객센터 연결·대기·문의 처리도 주요 시나리오로 함께 검토합니다. 실제 구현 시 지원 범위는 사업자별 ARS 구조와 통화 환경에 따라 달라질 수 있습니다.</p></details>
+        <details><summary>지금 바로 사용할 수 있는 기능인가요?</summary><p>아닙니다. 현재 페이지는 실제 불편과 사용 니즈를 확인하기 위한 컨셉 조사입니다. 화면과 통화 내용은 이해를 돕기 위한 가상 예시입니다.</p></details>
+      </div>
+    </section>
+
+    <div class="wrap bottom">
+      <h3>전화해야 해서 미뤘던 일이 있다면,<br>그 경험이 가장 중요한 답입니다.</h3>
+      <button class="primary" data-go-survey data-location="bottom">내 응답 다시 보기 ↗</button>
+    </div>
+  </main>
+
+  <footer>CALL X · Outbound Assistant concept research<br>본 페이지의 통화 화면·처리 결과·사용자 반응은 서비스 니즈 조사를 위한 가상 예시입니다.</footer>
+
+  <div class="mobile-sticky" id="mobileSticky"><span><b id="stickyTitle">1분 의견 남기기</b><span id="stickyCopy">6문항 · 선택하면 바로 다음으로</span></span><button class="pill" data-go-survey data-location="sticky">선택하기</button></div>
+
+<script>
+window.CALLX_CONFIG = {
+  endpoint: "/api/survey",
+  ga4Id: "G-XXXXXXXXXX",
+  metaPixelId: "",
+  surveyVersion: "outbound_delegate_v1"
+};
+
+window.CALLX_QUESTIONS = [
+  {
+    id:"frequency", kind:"REAL EXPERIENCE", tone:"blue",
+    title:"최근 한 달, 예약·문의·변경 때문에 직접 전화해야 했던 적이 얼마나 있었나요?",
+    help:"실제로 내가 전화를 걸어 처리해야 했던 일을 떠올려주세요.",
+    options:[
+      ["weekly_plus","주 1회 이상","한 달에 4번 이상"],
+      ["two_three","월 2~3회","두세 번 정도"],
+      ["once","월 1회","한 번 정도"],
+      ["none","없었음","최근 한 달에는 없었음"]
+    ]
+  },
+  {
+    id:"pain", kind:"MAIN PAIN", tone:"peach",
+    title:"그 전화에서 가장 번거로웠던 건 무엇이었나요?",
+    help:"여러 가지가 있었다면 가장 크게 느낀 한 가지를 골라주세요.",
+    options:[
+      ["wait","연결·대기 시간","ARS 탐색, 상담원 연결 대기"],
+      ["explain","설명·반복 절차","같은 정보나 용건을 다시 설명"],
+      ["timing","전화 가능한 시간 맞추기","영업시간·근무시간에 맞춰 통화"],
+      ["retry","미루거나 다시 전화하기","못 걸었거나 처리 못해 재시도"],
+      ["no_pain","별다른 불편 없음","직접 전화해도 괜찮았음"]
+    ]
+  },
+  {
+    id:"usecase", kind:"FIRST USE CASE", tone:"lime",
+    title:"AI에게 가장 먼저 맡기고 싶은 전화는 무엇인가요?",
+    help:"현실적으로 가장 자주 쓸 것 같은 업무 하나를 골라주세요.",
+    options:[
+      ["reservation","예약·접수","병원·미용·식당·방문/A/S 접수"],
+      ["support","고객센터 문의·처리","요금·계약·배송·변경·해지·A/S"],
+      ["info","단순 확인·문의","비용·운영시간·재고·진행상태 확인"],
+      ["none","맡기고 싶은 전화 없음","직접 전화하는 편이 나음"]
+    ]
+  },
+  {
+    id:"scope", kind:"DELEGATION LEVEL", tone:"pink",
+    title:"대신 전화한다면, 어디까지 맡길 수 있나요?",
+    help:"가장 넓게 허용할 수 있는 범위를 골라주세요.",
+    options:[
+      ["connect","연결·대기까지만","AI가 연결하고 사람이 받으면 나에게 넘김"],
+      ["ask","질문·정보 확인까지","내 용건을 전달하고 답을 받아옴"],
+      ["bounded_action","정해둔 조건 안에서 처리까지","예: 6시 이후면 예약 확정"],
+      ["full_delegate","처음부터 끝까지 맡기고 결과만","중간 확인 없이 처리 결과만 받음"],
+      ["no_delegate","맡기지 않겠음","AI가 대신 전화하는 것은 원치 않음"]
+    ]
+  },
+  {
+    id:"intent", kind:"USAGE INTENT", tone:"dark",
+    title:"이 기능이 실제로 제공된다면 사용할 것 같나요?",
+    help:"가격이나 세부 기능은 아직 정해지지 않았다고 가정해주세요.",
+    options:[
+      ["definitely","꼭 써보고 싶음","필요한 순간 바로 사용할 것 같음"],
+      ["probably","쓸 것 같음","상황에 따라 자주 사용할 수 있음"],
+      ["maybe","잘 모르겠음","조건과 방식에 따라 달라질 것 같음"],
+      ["unlikely","별로 쓰지 않을 것 같음","직접 전화하는 편이 나음"],
+      ["never","사용하지 않겠음","대신걸기 자체가 필요하지 않음"]
+    ]
+  },
+  {
+    id:"age", kind:"AGE · REQUIRED", tone:"blue",
+    title:"마지막으로 연령대를 알려주세요.",
+    help:"어떤 연령대에서 필요가 큰지 확인하기 위한 필수 문항입니다.",
+    options:[
+      ["14_19","만 14~19세",""],
+      ["20_29","만 20~29세",""],
+      ["30_39","만 30~39세",""],
+      ["40_49","만 40~49세",""],
+      ["50_59","만 50~59세",""],
+      ["60_plus","만 60세 이상",""]
+    ]
+  }
+];
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const cfg = window.CALLX_CONFIG || {};
+  const preview = location.protocol === 'file:';
+  const endpoint = cfg.endpoint || '';
+  const surveyVersion = cfg.surveyVersion || 'outbound_delegate_v1';
+  const memory = {};
+  const safeStore = (kind) => ({
+    getItem(k){ try{return window[kind].getItem(k)}catch{return memory[k]||null} },
+    setItem(k,v){ memory[k]=v; try{window[kind].setItem(k,v)}catch{} }
+  });
+  const sessionStore=safeStore('sessionStorage'), localStore=safeStore('localStorage');
+  const uuid=()=>window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  let sid=sessionStore.getItem('callx_outbound_sid'); if(!sid){sid=uuid();sessionStore.setItem('callx_outbound_sid',sid)}
+  let visitorId=localStore.getItem('callx_visitor_id'); if(!visitorId){visitorId=uuid();localStore.setItem('callx_visitor_id',visitorId)}
+  const params=new URLSearchParams(location.search);
+  const meta={
+    visitor_id:visitorId,
+    page_path:location.pathname,
+    referrer:document.referrer||null,
+    utm_source:params.get('utm_source'),utm_medium:params.get('utm_medium'),utm_campaign:params.get('utm_campaign'),utm_content:params.get('utm_content'),utm_term:params.get('utm_term'),
+    campaign_id:params.get('campaign_id'),adset_id:params.get('adset_id'),ad_id:params.get('ad_id'),
+    landing_variant:params.get('variant')||surveyVersion
+  };
+
+  window.dataLayer=window.dataLayer||[];
+  window.gtag=window.gtag||function(){dataLayer.push(arguments)};
+  if(/^G-[A-Z0-9]+$/.test(cfg.ga4Id||'') && !String(cfg.ga4Id).includes('XXXX') && !preview){
+    const s=document.createElement('script');s.async=true;s.src=`https://www.googletagmanager.com/gtag/js?id=${cfg.ga4Id}`;document.head.appendChild(s);
+    gtag('js',new Date());gtag('config',cfg.ga4Id,{send_page_view:true});
+  }
+  if(/^\d+$/.test(cfg.metaPixelId||'') && !preview){
+    const f=window.fbq=function(){f.callMethod?f.callMethod.apply(f,arguments):f.queue.push(arguments)};f.queue=[];f.loaded=true;f.version='2.0';
+    const s=document.createElement('script');s.async=true;s.src='https://connect.facebook.net/en_US/fbevents.js';document.head.appendChild(s);
+    f('init',cfg.metaPixelId);f('track','PageView');
+  }
+
+  const stateKey='callx_outbound_state_v1';
+  let state={current:0,answers:{},started:false,completed:false,seq:0,queue:[]};
+  try{state={...state,...JSON.parse(sessionStore.getItem(stateKey)||'{}')}}catch{}
+  state.queue=Array.isArray(state.queue)?state.queue:[];
+  const save=()=>sessionStore.setItem(stateKey,JSON.stringify(state));
+
+  function analytics(event,details={}){
+    const ga={survey_version:surveyVersion,...details};
+    if(typeof window.gtag==='function') gtag('event',`callx_${event}`,ga);
+    if(typeof window.fbq==='function' && ['survey_start','survey_complete','survey_cta_click'].includes(event)) fbq('trackCustom',`callx_${event}`,{survey_version:surveyVersion,...details});
+  }
+
+  let flushing=false;
+  function saveStatus(text){const n=document.getElementById('saveStatus');if(n)n.textContent=text}
+  async function flush(){
+    if(flushing || preview || !endpoint || !state.queue.length){
+      if(preview) saveStatus('미리보기 · 선택은 이 브라우저 세션에만 저장됩니다.');
+      return;
+    }
+    flushing=true;
+    while(state.queue.length){
+      try{
+        const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(state.queue[0]),keepalive:true});
+        if(!res.ok) throw new Error('save failed');
+        state.queue.shift();save();saveStatus('선택이 저장되었습니다.');
+      }catch(e){saveStatus('응답 저장 대기 중 · 연결 시 다시 시도합니다.');break}
+    }
+    flushing=false;
+  }
+  function track(event,details={}){
+    analytics(event,details);
+    const payload={version:surveyVersion,session_id:sid,event_id:uuid(),seq:++state.seq,event,at:new Date().toISOString(),answers:{...state.answers},meta,details};
+    if(!preview && endpoint){state.queue.push(payload);save();flush()} else save();
+  }
+  window.addEventListener('online',flush);setInterval(()=>{if(state.queue.length)flush()},12000);
+  window.CALLX={state,track,flush,meta};
+})();
+</script>
+
+<script>
+(() => {
+  'use strict';
+  const defs=window.CALLX_QUESTIONS, {state,track}=window.CALLX;
+  const $=id=>document.getElementById(id);
+  let busy=false;
+
+  function render(){
+    const idx=Math.max(0,Math.min(state.current,defs.length-1));
+    if(state.completed){renderDone();return}
+    const q=defs[idx];
+    $('qNo').textContent=String(idx+1).padStart(2,'0');
+    $('qKind').textContent=q.kind;
+    $('surveyIndex').dataset.tone=q.tone;
+    $('qStatus').textContent=`Q${idx+1} / ${defs.length}`;
+    $('qBar').style.width=`${idx/defs.length*100}%`;
+    $('qTitle').textContent=q.title;
+    $('qHelp').textContent=q.help;
+    $('back').hidden=idx===0;
+    const wrap=$('options');wrap.innerHTML='';
+    q.options.forEach(([value,label,desc])=>{
+      const b=document.createElement('button');b.type='button';b.className='option';b.dataset.value=value;b.setAttribute('aria-pressed',String(state.answers[q.id]===value));
+      b.innerHTML=`<strong>${label}</strong>${desc?`<span>${desc}</span>`:''}`;
+      b.addEventListener('click',()=>choose(q,value,label,b));wrap.appendChild(b);
+    });
+    $('stickyTitle').textContent=`${idx+1} / ${defs.length} · ${q.kind.replace(' · REQUIRED','')}`;
+    $('stickyCopy').textContent='하나를 골라 다음 질문으로 이동';
+    track('survey_step_view',{question_id:q.id,survey_step:idx+1});
+  }
+
+  function choose(q,value,label,button){
+    if(busy)return;busy=true;
+    if(!state.started){state.started=true;track('survey_start',{first_question:q.id})}
+    state.answers[q.id]=value;
+    document.querySelectorAll('#options .option').forEach(x=>x.setAttribute('aria-pressed','false'));
+    button.setAttribute('aria-pressed','true');
+    track('survey_answer',{question_id:q.id,option_id:value,option_label:label,survey_step:state.current+1});
+    setTimeout(()=>{
+      busy=false;
+      if(state.current===defs.length-1){
+        state.completed=true;track('survey_complete',{answered_count:Object.keys(state.answers).length,...Object.fromEntries(defs.map(d=>[`answer_${d.id}`,state.answers[d.id]||'']))});renderDone();
+      }else{
+        state.current++;render();
+        $('qTitle')?.focus({preventScroll:true});
+        $('surveyFrame').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth',block:'center'});
+      }
+    },150);
+  }
+
+  function renderDone(){
+    $('qNo').textContent='✓';$('qKind').textContent='COMPLETE';$('surveyIndex').dataset.tone='lime';$('qStatus').textContent='6 / 6 · 완료';$('qBar').style.width='100%';$('qTitle').textContent='응답이 완료되었습니다.';$('qHelp').textContent='어떤 사람에게 어떤 대신걸기가 필요한지 확인하는 데 참고하겠습니다.';$('back').hidden=false;
+    $('options').innerHTML=`<div class="done" style="grid-column:1/-1"><div class="done-badge">✓</div><h3>의견을 들려주셔서 감사합니다.</h3><p>아래에서 대신걸기가 어떻게 동작할 수 있는지 시나리오를 확인해보세요.</p><button class="secondary" id="seeHow">대신걸기 시나리오 보기 ↓</button></div>`;
+    $('saveStatus').textContent='6개 문항 선택 완료';$('stickyTitle').textContent='설문 완료';$('stickyCopy').textContent='응답해주셔서 감사합니다.';
+    document.getElementById('seeHow').onclick=()=>{track('how_cta_click',{location:'survey_complete'});document.getElementById('how').scrollIntoView({behavior:'smooth'})};
+  }
+
+  $('back').addEventListener('click',()=>{
+    if(busy)return;
+    if(state.completed){state.completed=false;state.current=defs.length-1;render();return}
+    if(state.current>0){state.current--;render()}
+  });
+
+  document.querySelectorAll('[data-go-survey]').forEach(btn=>btn.addEventListener('click',()=>{
+    track('survey_cta_click',{cta_location:btn.dataset.location||'other'});
+    document.getElementById('survey').scrollIntoView({behavior:'smooth',block:'start'});
+    setTimeout(()=>$('qTitle')?.focus({preventScroll:true}),450);
+  }));
+
+  track('landing_view',{page_title:document.title});
+  render();
+  const observer=new IntersectionObserver(entries=>{if(entries.some(e=>e.isIntersecting)){track('survey_view',{survey_step:state.current+1});observer.disconnect()}},{threshold:.28});
+  observer.observe(document.getElementById('surveyFrame'));
+
+  window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('scrolled',scrollY>24),{passive:true});
+})();
+</script>
+
+<script>
+(() => {
+  const scenarios={
+    reservation:{
+      label:'예약·접수',
+      steps:[
+        ['전화할 일을 말함','“금요일 6시 이후 스케일링 가능한 시간 알아봐줘.”'],
+        ['AI가 대신 연결','병원에 전화하고 안내 음성·대기 과정을 처리합니다.'],
+        ['가능 조건 확인','요청한 조건에 맞는 시간과 필요한 정보를 확인합니다.'],
+        ['결정만 다시 요청','새로운 시간 선택이 필요하면 사용자에게 확인합니다.']
+      ],
+      bubbles:[['user','금요일 6시 이후 가능한 시간 알아봐줘.'],['agent','OO치과에 전화해 가능한 시간을 확인하고 있어요.']],
+      status:[['연결','OO치과'],['확인','금 18:30 가능'],['다음 단계','예약 여부 확인']],
+      result:['확인 필요','금요일 18:30 예약 가능','이 시간으로 예약할지 선택해주세요.']
+    },
+    support:{
+      label:'고객센터 처리',
+      steps:[
+        ['문의할 일을 말함','“이번 달 요금이 왜 늘었는지 확인해줘.”'],
+        ['ARS·대기 대신 처리','메뉴를 따라가고 상담원 연결까지 기다립니다.'],
+        ['문의 내용 전달','사용자가 요청한 범위의 질문을 대신 전달합니다.'],
+        ['결과와 선택사항 정리','원인·가능한 조치·직접 결정할 일을 구분해 알려줍니다.']
+      ],
+      bubbles:[['user','이번 달 요금이 왜 늘었는지 확인해줘.'],['agent','고객센터에 연결해 청구 내역을 확인하고 있어요.']],
+      status:[['대기','3분 12초'],['확인','부가서비스 1건'],['다음 단계','해지 여부 선택']],
+      result:['처리 결과','추가 요금 원인을 확인했어요.','부가서비스 해지는 사용자 확인 후 진행합니다.']
+    },
+    info:{
+      label:'단순 확인·문의',
+      steps:[
+        ['궁금한 일을 말함','“오늘 재고 있는지랑 가격만 물어봐줘.”'],
+        ['AI가 매장에 전화','연결 후 필요한 질문만 간단히 전달합니다.'],
+        ['답변을 받아 정리','재고·가격·조건을 구분해 기록합니다.'],
+        ['결과만 전달','추가 결정이 없으면 답만 요약해 종료합니다.']
+      ],
+      bubbles:[['user','오늘 재고 있는지랑 가격만 물어봐줘.'],['agent','매장에 전화해 재고와 가격을 확인했어요.']],
+      status:[['재고','있음'],['가격','39,000원'],['다음 단계','없음']],
+      result:['문의 완료','재고 있음 · 39,000원','추가로 할 일 없이 통화를 마쳤습니다.']
+    }
+  };
+  let current='reservation', activeStep=0;
+  const stepsEl=document.getElementById('steps'), mock=document.getElementById('valueMock');
+  function renderScenario(name,step=0){
+    current=name;activeStep=step;const d=scenarios[name];
+    stepsEl.innerHTML='';
+    d.steps.forEach(([title,desc],i)=>{const el=document.createElement('div');el.className='step'+(i===step?' active':'');el.innerHTML=`<span class="step-no">0${i+1}</span><div><b>${title}</b><p>${desc}</p></div>`;el.onclick=()=>{renderScenario(name,i);window.CALLX.track('scenario_step_click',{scenario:name,step:i+1})};stepsEl.appendChild(el)});
+    const bubbleHTML=d.bubbles.map(([who,text])=>`<div class="bubble ${who}">${text}</div>`).join('');
+    mock.innerHTML=`<div class="mock-head"><div><b>CALL X · ${d.label}</b><span style="display:block;margin-top:3px">컨셉 목업 · 실제 화면 아님</span></div><span>AI OUTBOUND</span></div><div class="mock-body">${bubbleHTML}<div class="call-status">${d.status.map(([k,v])=>`<div><small>${k}</small><b>${v}</b></div>`).join('')}</div><div class="result-panel"><small>${d.result[0]}</small><b>${d.result[1]}</b><span>${d.result[2]}</span></div></div>`;
+  }
+  document.querySelectorAll('.scenario-tab').forEach(btn=>btn.addEventListener('click',()=>{
+    document.querySelectorAll('.scenario-tab').forEach(b=>b.setAttribute('aria-selected',String(b===btn)));
+    renderScenario(btn.dataset.scenario,0);window.CALLX.track('scenario_tab_click',{scenario:btn.dataset.scenario});
+  }));
+  renderScenario(current,0);
+
+  document.querySelectorAll('details').forEach((d,i)=>d.addEventListener('toggle',()=>{if(d.open)window.CALLX.track('faq_open',{faq_index:i+1,question:d.querySelector('summary')?.textContent||''})}));
+  const sticky=document.getElementById('mobileSticky');
+  const footerObserver=new IntersectionObserver(entries=>entries.forEach(e=>sticky.classList.toggle('hidden',e.isIntersecting)),{threshold:.1});
+  footerObserver.observe(document.querySelector('footer'));
+})();
+</script>
+</body>
+</html>
